@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hosty | Organise moins. Profite plus.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6C3CE1',
+                        midnight: '#0D0D2B',
+                        nearBlack: '#050505',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Playfair Display', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .gradient-text {
+            background: linear-gradient(to bottom, #FFFFFF, rgba(255,255,255,0.5));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        body {
+            background-color: #0D0D2B;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-display { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher Floating -->
+    <div class="fixed top-6 right-6 z-50 flex gap-1 p-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full">
+        <button onclick="setLanguage('fr')" id="lang-fr" class="px-3 py-1 text-xs font-bold rounded-full transition-all bg-primary text-white">FR</button>
+        <button onclick="setLanguage('en')" id="lang-en" class="px-3 py-1 text-xs font-bold rounded-full transition-all text-white/60 hover:text-white hover:bg-white/10">EN</button>
+        <button onclick="setLanguage('nl')" id="lang-nl" class="px-3 py-1 text-xs font-bold rounded-full transition-all text-white/60 hover:text-white hover:bg-white/10">NL</button>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section class="relative h-screen w-full overflow-hidden flex items-center justify-center text-center">
+        <div class="glow-blob w-1/2 h-1/2 top-[-10%] left-[-10%] bg-purple-600/20 animate-pulse"></div>
+        <div class="glow-blob w-1/2 h-1/2 bottom-[-10%] right-[-10%] bg-violet-800/20 animate-pulse" style="animation-delay: 2s"></div>
+
+        <div class="relative z-10 container mx-auto px-6">
+            <h1 id="hero-headline" class="text-5xl md:text-7xl lg:text-8xl font-display font-bold tracking-tight mb-6 leading-[1.1] gradient-text reveal">
+                <!-- Filled by JS -->
+            </h1>
+            <p id="hero-subheadline" class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 reveal" style="transition-delay: 0.2s">
+                <!-- Filled by JS -->
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-center reveal" style="transition-delay: 0.4s">
+                <button id="hero-cta-primary" onclick="scrollToWaitlist()" class="bg-gradient-to-r from-primary to-violet-600 hover:from-primary hover:to-violet-500 text-white px-8 py-4 text-lg font-semibold rounded-full shadow-[0_0_20px_rgba(108,60,225,0.4)] transition-all hover:shadow-[0_0_30px_rgba(108,60,225,0.6)]">
+                    <!-- Filled by JS -->
+                </button>
+                <button id="hero-cta-secondary" onclick="scrollToWaitlist()" class="border border-white/20 bg-white/5 backdrop-blur-md text-white px-8 py-4 text-lg rounded-full transition-all hover:bg-white/10">
+                    <!-- Filled by JS -->
+                </button>
+            </div>
+            <div id="trust-badges" class="mt-16 flex flex-wrap justify-center gap-6 md:gap-10 opacity-60 text-sm font-medium reveal" style="transition-delay: 0.6s">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPERIENCE SECTION -->
+    <section class="py-24 px-6 bg-black/20">
+        <div class="container mx-auto text-center">
+            <h2 id="exp-title" class="text-4xl md:text-6xl font-display font-bold text-white mb-6 tracking-tight reveal"></h2>
+            <p id="exp-subtitle" class="text-lg text-gray-400 max-w-2xl mx-auto mb-20 reveal" style="transition-delay: 0.2s"></p>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                <div id="exp-steps" class="contents">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="py-24 px-6 bg-black/40">
+        <div class="container mx-auto text-center">
+            <h2 id="how-title" class="text-4xl md:text-6xl font-display font-bold text-white mb-6 tracking-tight reveal"></h2>
+            <p id="how-subtitle" class="text-lg text-gray-400 max-w-2xl mx-auto mb-20 reveal" style="transition-delay: 0.2s"></p>
+            <div id="how-steps" class="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- CORE FEATURES -->
+    <section class="py-24 px-6 relative">
+        <div class="container mx-auto text-center">
+            <h2 id="feat-title" class="text-4xl md:text-6xl font-display font-bold text-white mb-6 tracking-tight reveal"></h2>
+            <p id="feat-subtitle" class="text-lg text-gray-400 max-w-2xl mx-auto mb-20 reveal" style="transition-delay: 0.2s"></p>
+            <div id="feat-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECURITY & PAYMENT -->
+    <section class="py-24 px-6 bg-black relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/10 blur-[150px] rounded-full pointer-events-none"></div>
+        <div class="container mx-auto relative z-10 text-center">
+            <h2 id="sec-title" class="text-4xl md:text-6xl font-display font-bold text-white mb-6 tracking-tight reveal"></h2>
+            <p id="sec-subtitle" class="text-lg text-gray-400 max-w-2xl mx-auto mb-20 reveal" style="transition-delay: 0.2s"></p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div id="sec-itsme" class="p-10 rounded-3xl glass text-left reveal" style="transition-delay: 0.3s"></div>
+                <div id="sec-pay" class="p-10 rounded-3xl glass text-left reveal" style="transition-delay: 0.5s"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="py-24 px-6 relative overflow-hidden">
+        <div class="container mx-auto text-center">
+            <h2 id="gal-title" class="text-4xl md:text-6xl font-display font-bold text-white mb-6 tracking-tight reveal"></h2>
+            <p id="gal-subtitle" class="text-lg text-gray-400 max-w-2xl mx-auto mb-20 reveal" style="transition-delay: 0.2s"></p>
+            <div id="gal-grid" class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SOCIAL PROOF -->
+    <section class="py-24 px-6 bg-black/20 relative">
+        <div class="container mx-auto text-center">
+            <div class="mb-20">
+                <div id="soc-badge" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold mb-6 animate-bounce reveal">
+                    <!-- Filled by JS -->
+                </div>
+                <h2 id="soc-title" class="text-4xl md:text-6xl font-display font-bold text-white mb-6 tracking-tight reveal" style="transition-delay: 0.2s"></h2>
+                <div id="soc-counter" class="text-7xl md:text-9xl font-display font-black text-primary mb-4 tabular-nums reveal" style="transition-delay: 0.4s">0+</div>
+                <p id="soc-counter-text" class="text-xl text-gray-400 reveal" style="transition-delay: 0.6s"></p>
+            </div>
+            <div id="soc-testimonials" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section id="waitlist-section" class="py-24 px-6 relative overflow-hidden bg-gradient-to-b from-[#0D0D2B] to-black">
+        <div class="container mx-auto text-center relative z-10">
+            <h2 id="final-title" class="text-4xl md:text-7xl font-display font-bold text-white mb-6 tracking-tight reveal"></h2>
+            <p id="final-subtitle" class="text-xl text-gray-400 mb-12 max-w-2xl mx-auto font-sans reveal" style="transition-delay: 0.2s"></p>
+
+            <div class="max-w-xl mx-auto">
+                <form id="waitlist-form" class="p-8 md:p-12 rounded-3xl glass text-left reveal" style="transition-delay: 0.4s">
+                    <div class="space-y-6">
+                        <div>
+                            <label id="lbl-name" class="block text-sm font-medium text-white/60 mb-2"></label>
+                            <input id="in-name" required type="text" class="w-full bg-white/5 border border-white/10 text-white h-12 rounded-xl px-4 focus:border-primary outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label id="lbl-email" class="block text-sm font-medium text-white/60 mb-2"></label>
+                            <input id="in-email" required type="email" class="w-full bg-white/5 border border-white/10 text-white h-12 rounded-xl px-4 focus:border-primary outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label id="lbl-role" class="block text-sm font-medium text-white/60 mb-4"></label>
+                            <div class="flex gap-4">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="userType" value="host" checked class="sr-only">
+                                    <div id="opt-host" class="p-4 rounded-xl border border-white/10 bg-white/5 text-white text-center hover:border-primary transition-all has-[:checked]:bg-primary has-[:checked]:border-primary"></div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="userType" value="guest" class="sr-only">
+                                    <div id="opt-guest" class="p-4 rounded-xl border border-white/10 bg-white/5 text-white text-center hover:border-primary transition-all has-[:checked]:bg-primary has-[:checked]:border-primary"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <button id="final-btn" type="submit" class="w-full py-6 text-lg font-bold bg-primary hover:bg-primary/90 text-white rounded-xl transition-all shadow-lg shadow-primary/20">
+                            <!-- Filled by JS -->
+                        </button>
+                    </div>
+                </form>
+                <div id="success-msg" class="hidden p-12 rounded-3xl bg-primary/20 border border-primary/30 text-white text-center">
+                    <h3 id="succ-title" class="text-3xl font-display font-bold mb-4"></h3>
+                    <p id="succ-desc" class="text-lg opacity-80"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-12 px-6 bg-black border-t border-white/10">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-white">H</div>
+                        <span class="text-2xl font-display font-bold text-white">Hosty</span>
+                    </div>
+                    <p id="foot-tagline" class="text-gray-400 text-sm mb-6 leading-relaxed"></p>
+                    <div class="flex gap-4 items-center">
+                        <div class="flex gap-2">
+                            <a href="#" class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-colors"><span class="text-xs">IG</span></a>
+                            <a href="#" class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-colors"><span class="text-xs">TW</span></a>
+                            <a href="#" class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-colors"><span class="text-xs">LI</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <h4 id="foot-prod" class="text-white font-bold mb-2"></h4>
+                    <a id="foot-feat" href="#" class="text-gray-400 hover:text-primary transition-colors text-sm"></a>
+                    <a id="foot-price" href="#" class="text-gray-400 hover:text-primary transition-colors text-sm"></a>
+                    <a id="foot-wait" href="#" class="text-gray-400 hover:text-primary transition-colors text-sm"></a>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <h4 id="foot-legal" class="text-white font-bold mb-2"></h4>
+                    <a id="foot-priv" href="#" class="text-gray-400 hover:text-primary transition-colors text-sm"></a>
+                    <a id="foot-terms" href="#" class="text-gray-400 hover:text-primary transition-colors text-sm"></a>
+                    <a id="foot-cgu" href="#" class="text-gray-400 hover:text-primary transition-colors text-sm"></a>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <h4 id="foot-news" class="text-white font-bold mb-2"></h4>
+                    <p id="foot-news-desc" class="text-gray-400 text-sm mb-4"></p>
+                    <div class="flex gap-2">
+                        <input id="foot-news-email" type="email" class="bg-white/5 border border-white/10 text-white h-9 rounded-lg px-3 flex-1 outline-none focus:border-primary" />
+                        <button id="foot-news-btn" class="bg-primary text-white rounded-lg px-3 text-sm font-bold">...</button>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p id="foot-copy" class="text-gray-400 text-xs"></p>
+                <div class="flex gap-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-xs">Twitter</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-xs">Instagram</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-xs">TikTok</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const translations = {
+            fr: {
+                hero: {
+                    headline: "Crée ta soirée parfaite en quelques clics avec Hosty",
+                    headlineAccent: "en quelques clics",
+                    subheadline: "L'application qui centralise tout sans efforts. Invitations, budgets, paiements et sécurité. Profite enfin de tes invités.",
+                    ctaPrimary: "Créer ma soirée",
+                    ctaSecondary: "Rejoindre une room",
+                    trustBadges: ["iOS App Store", "Android", "Paiements sécurisés", "Itsme"],
+                    scroll: "Découvrir",
+                },
+                experience: {
+                    title: "Tout est prêt. Il ne manque plus que tes amis.",
+                    subtitle: "Une expérience fluide pensée pour éliminer tout stress organisationnel.",
+                    steps: [
+                        { title: "Crée", desc: "Configure ta soirée en 30 secondes : thème, date, budget." },
+                        { title: "Invite", desc: "Envoie un lien magique à tes amis. Plus de groupes WhatsApp chaotiques." },
+                        { title: "Confirme", desc: "Réponses en temps réel et collecte automatique des participations." },
+                        { title: "Profite", desc: "Tout est géré. Il ne te reste plus qu'à ouvrir la porte." },
+                    ],
+                },
+                howItWorks: {
+                    title: "Comment ça marche ?",
+                    subtitle: "Trois étapes simples pour passer de l'idée à la fête mémorable.",
+                    steps: [
+                        { title: "Crée ton événement", desc: "Définis le thème, la date, le lieu et ta liste d'invités en quelques clics." },
+                        { title: "Envoie les invitations", desc: "Partage ton événement instantanément via un lien personnalisé." },
+                        { title: "Profite", desc: "Hosty gère les confirmations et les paiements. Tu n'as plus qu'à savourer." },
+                    ],
+                },
+                features: {
+                    title: "Tout ce dont tu as besoin pour une soirée réussie.",
+                    subtitle: "Des outils puissants, une interface intuitive, un résultat mémorable.",
+                    list: [
+                        { title: "Création Express", desc: "Lance ton événement en quelques secondes grâce à nos templates." },
+                        { title: "Gestion d'Invités", desc: "Suis les RSVP en temps réel et gère ta liste d'invités sans effort." },
+                        { title: "Paiements Intégrés", desc: "Collecte les participations financières instantanément et en toute sécurité." },
+                        { title: "Vérification Itsme", desc: "Sécurise tes rooms avec une vérification d'identité fiable et rapide." },
+                        { title: "Historique & Reviews", desc: "Garde une trace de tes soirées et reçois des avis de tes invités." },
+                    ],
+                    cta: { title: "Prêt à commencer ?", desc: "Rejoins la waitlist pour un accès prioritaire.", btn: "S'inscrire maintenant" },
+                },
+                security: {
+                    title: "Organise en confiance. Encaisse en sécurité.",
+                    subtitle: "La tranquillité d'esprit pour l'hôte, la simplicité absolue pour les invités.",
+                    itsme: {
+                        title: "Sécurité Itsme",
+                        desc: "Nous intégrons la vérification d'identité Itsme pour garantir que seules les personnes autorisées accèdent à vos événements privés.",
+                        items: ["Identité vérifiée et cryptée", "Conformité RGPD totale", "Accès instantané après validation"],
+                    },
+                    payments: {
+                        title: "Paiements Intégrés",
+                        desc: "Plus besoin de courir après les remboursements. Collecte les participations automatiquement dès l'invitation.",
+                        items: ["Transferts instantanés", "Transactions sécurisées PCI-DSS", "Gestion automatique des budgets"],
+                    },
+                },
+                gallery: {
+                    title: "Chaque soirée devient mémorable.",
+                    subtitle: "Peu importe le concept, Hosty transforme l'organisation en un plaisir.",
+                    categories: { gaming: "Gaming", celebration: "Celebration", relax: "Relax", social: "Social" },
+                    items: { poker: "Soirée Poker", birthday: "Anniversaires", chill: "Chill Evenings", boardgames: "Jeux de Société", cocktail: "Cocktail Party", cinema: "Soirée Ciné" },
+                },
+                social: {
+                    title: "Ils attendent déjà Hosty",
+                    badge: "Coming Soon - Accès Prioritaire",
+                    counter: "Personnes inscrites sur la waitlist",
+                    testimonials: [
+                        { name: "Marc L.", role: "Host Passionné", text: "Hosty a littéralement sauvé mes soirées poker. Plus besoin de courir après les paiements !" },
+                        { name: "Sophie D.", role: "Organisatrice", text: "L'intégration Itsme est un game-changer pour la sécurité de mes événements privés." },
+                        { name: "Julien R.", role: "Invité", text: "Enfin une app qui simplifie les invitations sans passer par 15 groupes WhatsApp." },
+                    ],
+                },
+                final: {
+                    title: "Prêt à transformer tes soirées ?",
+                    subtitle: "Rejoins la révolution de l'organisation d'événments. Organise moins. Profite plus.",
+                    form: { firstName: "Prénom", email: "Email", role: "Ton rôle principal", host: "Hôte", guest: "Invité", btn: "Rejoindre la waitlist" },
+                    success: { title: "C'est fait ! 🎉", desc: "Tu es désormais dans le cercle fermé. On te contactera très bientôt." },
+                },
+                footer: {
+                    tagline: "Organise moins. Profite plus. La nouvelle ère de l'organisation de soirées.",
+                    product: "Produit",
+                    legal: "Légal",
+                    newsletter: "Newsletter",
+                    links: { features: "Fonctionnalités", pricing: "Tarifs", waitlist: "Waitlist", privacy: "Confidentialité", terms: "Conditions d'utilisation", cgu: "CGU" },
+                    newsletterDesc: "Restez informé du lancement.",
+                    newsletterEmail: "Votre email",
+                    newsletterBtn: "S'inscrire",
+                    copyright: "© 2026 Hosty. Tous droits réservés.",
+                },
+            },
+            en: {
+                hero: {
+                    headline: "Create your perfect party in a few clicks with Hosty",
+                    headlineAccent: "in a few clicks",
+                    subheadline: "The app that centralizes everything effortlessly. Invitations, budgets, payments and security. Finally enjoy your guests.",
+                    ctaPrimary: "Create my party",
+                    ctaSecondary: "Join a room",
+                    trustBadges: ["iOS App Store", "Android", "Secure Payments", "Itsme"],
+                    scroll: "Discover",
+                },
+                experience: {
+                    title: "Everything is ready. All that's missing are your friends.",
+                    subtitle: "A seamless experience designed to eliminate all organizational stress.",
+                    steps: [
+                        { title: "Create", desc: "Set up your party in 30 seconds: theme, date, budget." },
+                        { title: "Invite", desc: "Send a magic link to your friends. No more chaotic WhatsApp groups." },
+                        { title: "Confirm", desc: "Real-time responses and automatic collection of contributions." },
+                        { title: "Enjoy", desc: "Everything is handled. All you have to do is open the door." },
+                    ],
+                },
+                howItWorks: {
+                    title: "How does it work?",
+                    subtitle: "Three simple steps to go from idea to memorable party.",
+                    steps: [
+                        { title: "Create your event", desc: "Define the theme, date, location and guest list in a few clicks." },
+                        { title: "Send invitations", desc: "Share your event instantly via a personalized link." },
+                        { title: "Enjoy", desc: "Hosty manages confirmations and payments. You just savor the moment." },
+                    ],
+                },
+                features: {
+                    title: "Everything you need for a successful party.",
+                    subtitle: "Powerful tools, intuitive interface, memorable result.",
+                    list: [
+                        { title: "Express Creation", desc: "Launch your event in seconds thanks to our templates." },
+                        { title: "Guest Management", desc: "Track RSVPs in real-time and manage your guest list effortlessly." },
+                        { title: "Integrated Payments", desc: "Collect financial contributions instantly and securely." },
+                        { title: "Itsme Verification", desc: "Secure your rooms with reliable and fast identity verification." },
+                        { title: "History & Reviews", desc: "Keep track of your parties and receive reviews from your guests." },
+                    ],
+                    cta: { title: "Ready to start?", desc: "Join the waitlist for priority access.", btn: "Sign up now" },
+                },
+                security: {
+                    title: "Organize with confidence. Collect securely.",
+                    subtitle: "Peace of mind for the host, absolute simplicity for the guests.",
+                    itsme: {
+                        title: "Itsme Security",
+                        desc: "We integrate Itsme identity verification to ensure that only authorized people access your private events.",
+                        items: ["Verified and encrypted identity", "Full GDPR compliance", "Instant access after validation"],
+                    },
+                    payments: {
+                        title: "Integrated Payments",
+                        desc: "No more chasing refunds. Collect contributions automatically upon invitation.",
+                        items: ["Instant transfers", "PCI-DSS secure transactions", "Automatic budget management"],
+                    },
+                },
+                gallery: {
+                    title: "Every party becomes memorable.",
+                    subtitle: "No matter the concept, Hosty turns organization into a pleasure.",
+                    categories: { gaming: "Gaming", celebration: "Celebration", relax: "Relax", social: "Social" },
+                    items: { poker: "Poker Night", birthday: "Birthdays", chill: "Chill Evenings", boardgames: "Board Games", cocktail: "Cocktail Party", cinema: "Movie Night" },
+                },
+                social: {
+                    title: "They're already waiting for Hosty",
+                    badge: "Coming Soon - Priority Access",
+                    counter: "People signed up on the waitlist",
+                    testimonials: [
+                        { name: "Marc L.", role: "Passionate Host", text: "Hosty literally saved my poker nights. No more chasing payments!" },
+                        { name: "Sophie D.", role: "Organizer", text: "Itsme integration is a game-changer for the security of my private events." },
+                        { name: "Julien R.", role: "Guest", text: "Finally an app that simplifies invitations without going through 15 WhatsApp groups." },
+                    ],
+                },
+                final: {
+                    title: "Ready to transform your parties?",
+                    subtitle: "Join the revolution of event organization. Organize less. Enjoy more.",
+                    form: { firstName: "First Name", email: "Email", role: "Your primary role", host: "Host", guest: "Guest", btn: "Join the waitlist" },
+                    success: { title: "Done! 🎉", desc: "You are now in the inner circle. We will contact you very soon." },
+                },
+                footer: {
+                    tagline: "Organize less. Enjoy more. The new era of party organization.",
+                    product: "Product",
+                    legal: "Legal",
+                    newsletter: "Newsletter",
+                    links: { features: "Features", pricing: "Pricing", waitlist: "Waitlist", privacy: "Privacy", terms: "Terms of Use", cgu: "T&Cs" },
+                    newsletterDesc: "Stay informed about the launch.",
+                    newsletterEmail: "Your email",
+                    newsletterBtn: "Sign up",
+                    copyright: "© 2026 Hosty. All rights reserved.",
+                },
+            },
+            nl: {
+                hero: {
+                    headline: "Creëer je perfecte feestje in een paar klikken met Hosty",
+                    headlineAccent: "in een paar klikken",
+                    subheadline: "De app die alles moeiteloos centraliseert. Uitnodigingen, budgetten, betalingen en beveiliging. Geniet eindelijk van je gasten.",
+                    ctaPrimary: "Mijn feestje maken",
+                    ctaSecondary: "Een room joinen",
+                    trustBadges: ["iOS App Store", "Android", "Veilige Betalingen", "Itsme"],
+                    scroll: "Ontdekken",
+                },
+                experience: {
+                    title: "Alles staat klaar. Alleen je vrienden ontbreken nog.",
+                    subtitle: "Een vloeiende ervaring ontworpen om alle organisatiestress te elimineren.",
+                    steps: [
+                        { title: "Maak", desc: "Stel je feestje in 30 seconden in: thema, datum, budget." },
+                        { title: "Nodig uit", desc: "Stuur een magische link naar je vrienden. Geen chaotische WhatsApp-groepen meer." },
+                        { title: "Bevestig", desc: "Real-time reacties en automatische inning van bijdragen." },
+                        { title: "Geniet", desc: "Alles is geregeld. Je hoeft alleen maar de deur open te doen." },
+                    ],
+                },
+                howItWorks: {
+                    title: "Hoe werkt het?",
+                    subtitle: "Drie eenvoudige stappen om van idee naar een onvergetelijk feest te gaan.",
+                    steps: [
+                        { title: "Maak je event", desc: "Bepaal het thema, de datum, de locatie en de gastenlijst in een paar klikken." },
+                        { title: "Verstuur uitnodigingen", desc: "Deel je event direct via een gepersonaliseerde link." },
+                        { title: "Geniet", desc: "Hosty regelt de bevestigingen en betalingen. Jij hoeft alleen maar te genieten." },
+                    ],
+                },
+                features: {
+                    title: "Alles wat je nodig hebt voor een geslaagd feestje.",
+                    subtitle: "Krachtige tools, intuïtieve interface, onvergetelijk resultaat.",
+                    list: [
+                        { title: "Express Creatie", desc: "Lanceer je event in enkele seconden dankzij onze templates." },
+                        { title: "Gastenbeheer", desc: "Volg RSVP's in real-time en beheer je gastenlijst moeiteloos." },
+                        { title: "Geïntegreerde Betalingen", desc: "Incasseer financiële bijdragen direct en veilig." },
+                        { title: "Itsme Verificatie", desc: "Beveilig je rooms met betrouwbare en snelle identiteitsverificatie." },
+                        { title: "Historie & Reviews", desc: "Houd een overzicht van je feestjes en ontvang reviews van je gasten." },
+                    ],
+                    cta: { title: "Klaar om te beginnen?", desc: "Meld je aan voor de wachtlijst voor prioriteits toegang.", btn: "Nu inschrijven" },
+                },
+                security: {
+                    title: "Organiseer met vertrouwen. Incasseer veilig.",
+                    subtitle: "Gemoedsrust voor de gastheer, absolute eenvoud voor de gasten.",
+                    itsme: {
+                        title: "Itsme Beveiliging",
+                        desc: "We integreren Itsme identiteitsverificatie om te garanderen dat alleen geautoriseerde personen toegang hebben tot je privé-events.",
+                        items: ["Geverifieerde en versleutelde identiteit", "Volledige GDPR-conformiteit", "Directe toegang na validatie"],
+                    },
+                    payments: {
+                        title: "Geïntegreerde Betalingen",
+                        desc: "Geen gedoe meer met terugbetalingen. Incasseer bijdragen automatisch bij de uitnodiging.",
+                        items: ["Directe overboekingen", "PCI-DSS beveiligde transacties", "Automatisch budgetbeheer"],
+                    },
+                },
+                gallery: {
+                    title: "Elk feest wordt onvergetelijk.",
+                    subtitle: "Ongeacht het concept, Hosty maakt van organiseren een plezier.",
+                    categories: { gaming: "Gaming", celebration: "Celebration", relax: "Relax", social: "Social" },
+                    items: { poker: "Poker Avond", birthday: "Verjaardagen", chill: "Chill Avonden", boardgames: "Bordspellen", cocktail: "Cocktail Party", cinema: "Film Avond" },
+                },
+                social: {
+                    title: "Zij wachten al op Hosty",
+                    badge: "Binnenkort - Prioriteits Toegang",
+                    counter: "Personen ingeschreven op de wachtlijst",
+                    testimonials: [
+                        { name: "Marc L.", role: "Passievolle Host", text: "Hosty heeft mijn pokeravonden letterlijk gered. Geen gedoe meer met betalingen!" },
+                        { name: "Sophie D.", role: "Organisatrice", text: "Itsme-integratie is een game-changer voor de beveiliging van mijn privé-events." },
+                        { name: "Julien R.", role: "Gast", text: "Eindelijk een app die uitnodigingen vereenvoudigt zonder via 15 WhatsApp-groepen te gaan." },
+                    ],
+                },
+                final: {
+                    title: "Klaar om je feestjes te transformeren?",
+                    subtitle: "Sluit je aan bij de revolutie van event-organisatie. Organiseer minder. Geniet meer.",
+                    form: { firstName: "Voornaam", email: "Email", role: "Je hoofdrol", host: "Host", guest: "Gast", btn: "Join de wachtlijst" },
+                    success: { title: "Gelukt! 🎉", desc: "Je maakt nu deel uit van de inner circle. We nemen snel contact met je op." },
+                },
+                footer: {
+                    tagline: "Organiseer minder. Geniet meer. Het nieuwe tijdperk van feestorganisatie.",
+                    product: "Product",
+                    legal: "Juridisch",
+                    newsletter: "Nieuwsbrief",
+                    links: { features: "Functies", pricing: "Tarieven", waitlist: "Wachtlijst", privacy: "Privacy", terms: "Gebruiksvoorwaarden", cgu: "AV" },
+                    newsletterDesc: "Blijf op de hoogte van de lancering.",
+                    newsletterEmail: "Je email",
+                    newsletterBtn: "Inschrijven",
+                    copyright: "© 2026 Hosty. Alle rechten voorbehouden.",
+                },
+            },
+        };
+
+        let currentLocale = 'fr';
+
+        function setLanguage(lang) {
+            currentLocale = lang;
+            localStorage.setItem('hosty-locale', lang);
+
+            // Update buttons
+            ['fr', 'en', 'nl'].forEach(l => {
+                const btn = document.getElementById(`lang-${l}`);
+                if (l === lang) {
+                    btn.classList.add('bg-primary', 'text-white');
+                    btn.classList.remove('text-white/60', 'hover:text-white', 'hover:bg-white/10');
+                } else {
+                    btn.classList.remove('bg-primary', 'text-white');
+                    btn.classList.add('text-white/60', 'hover:text-white', 'hover:bg-white/10');
+                }
+            });
+
+            updateContent();
+        }
+
+        function scrollToWaitlist() {
+            document.getElementById('waitlist-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateContent() {
+            const t = translations[currentLocale];
+
+            // Hero
+            const hHeadline = document.getElementById('hero-headline');
+            const accent = t.hero.headlineAccent;
+            hHeadline.innerHTML = t.hero.headline.split(accent).map((part, i, arr) =>
+                i < arr.length - 1 ? `${part}<span class="text-primary">${accent}</span>` : part
+            ).join('');
+            document.getElementById('hero-subheadline').innerText = t.hero.subheadline;
+            document.getElementById('hero-cta-primary').innerText = t.hero.ctaPrimary;
+            document.getElementById('hero-cta-secondary').innerText = t.hero.ctaSecondary;
+
+            const badges = document.getElementById('trust-badges');
+            badges.innerHTML = t.hero.trustBadges.map(b => `<div class="flex items-center gap-2 text-sm font-medium"><span>${b}</span></div>`).join('');
+
+            // Experience
+            document.getElementById('exp-title').innerText = t.experience.title;
+            document.getElementById('exp-subtitle').innerText = t.experience.subtitle;
+            const expSteps = document.getElementById('exp-steps');
+            expSteps.innerHTML = t.experience.steps.map((s, i) => `
+                <div class="relative z-10 group p-6 rounded-3xl glass hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 text-center reveal" style="transition-delay: ${i*0.2}s">
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-white/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500">
+                        <div class="w-8 h-8 bg-primary/20 rounded-full"></div>
+                    </div>
+                    <h3 class="text-2xl font-display font-bold text-white mb-3">${s.title}</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">${s.desc}</p>
+                    <div class="absolute -top-4 -right-4 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xs border-4 border-midnight">${i+1}</div>
+                </div>
+            `).join('');
+
+            // How it Works
+            document.getElementById('how-title').innerText = t.howItWorks.title;
+            document.getElementById('how-subtitle').innerText = t.howItWorks.subtitle;
+            const howSteps = document.getElementById('how-steps');
+            howSteps.innerHTML = t.howItWorks.steps.map((s, i) => `
+                <div class="flex flex-col items-center text-center group max-w-xs reveal" style="transition-delay: ${i*0.2}s">
+                    <div class="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500 relative z-10">
+                        <div class="w-10 h-10 bg-white/20 rounded-full"></div>
+                    </div>
+                    <h3 class="text-2xl font-display font-bold text-white mb-4">${s.title}</h3>
+                    <p class="text-gray-400 leading-relaxed">${s.desc}</p>
+                </div>
+                ${i < 2 ? '<div class="hidden md:block relative"><div class="w-24 h-0.5 bg-gradient-to-r from-primary/50 to-primary/0"></div></div>' : ''}
+            `).join('');
+
+            // Features
+            document.getElementById('feat-title').innerText = t.features.title;
+            document.getElementById('feat-subtitle').innerText = t.features.subtitle;
+            const featGrid = document.getElementById('feat-grid');
+            featGrid.innerHTML = t.features.list.map((f, i) => `
+                <div class="p-8 rounded-3xl glass hover:border-primary/50 transition-all duration-500 group reveal" style="transition-delay: ${i*0.1}s">
+                    <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <div class="w-6 h-6 bg-primary/20 rounded-full"></div>
+                    </div>
+                    <h3 class="text-2xl font-display font-bold text-white mb-3">${f.title}</h3>
+                    <p class="text-gray-400 leading-relaxed">${f.desc}</p>
+                </div>
+            `).join('') + `
+                <div class="p-8 rounded-3xl bg-gradient-to-br from-primary to-violet-800 flex flex-col items-center justify-center text-center text-white shadow-xl shadow-primary/20 reveal" style="transition-delay: 0.5s">
+                    <h3 class="text-2xl font-display font-bold mb-4">${t.features.cta.title}</h3>
+                    <p class="text-white/80 mb-6">${t.features.cta.desc}</p>
+                    <button onclick="scrollToWaitlist()" class="bg-white text-primary hover:bg-white/90 rounded-full px-6 py-4 font-bold transition-all">${t.features.cta.btn}</button>
+                </div>
+            `;
+
+            // Security
+            document.getElementById('sec-title').innerText = t.security.title;
+            document.getElementById('sec-subtitle').innerText = t.security.subtitle;
+            document.getElementById('sec-itsme').innerHTML = `
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="p-3 rounded-2xl bg-primary/20 text-primary"><div class="w-8 h-8 bg-primary/20 rounded-full"></div></div>
+                    <h3 class="text-3xl font-display font-bold text-white">${t.security.itsme.title}</h3>
+                </div>
+                <p class="text-gray-400 text-lg mb-8 leading-relaxed">${t.security.itsme.desc}</p>
+                <div class="space-y-4">
+                    ${t.security.itsme.items.map(item => `<div class="flex items-center gap-3 text-white/80"><div class="w-5 h-5 text-primary">✓</div><span>${item}</span></div>`).join('')}
+                </div>
+            `;
+            document.getElementById('sec-pay').innerHTML = `
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="p-3 rounded-2xl bg-green-500/20 text-green-400"><div class="w-8 h-8 bg-green-500/20 rounded-full"></div></div>
+                    <h3 class="text-3xl font-display font-bold text-white">${t.security.payments.title}</h3>
+                </div>
+                <p class="text-gray-400 text-lg mb-8 leading-relaxed">${t.security.payments.desc}</p>
+                <div class="space-y-4">
+                    ${t.security.payments.items.map(item => `<div class="flex items-center gap-3 text-white/80"><div class="w-5 h-5 text-green-400">✓</div><span>${item}</span></div>`).join('')}
+                </div>
+            `;
+
+            // Gallery
+            document.getElementById('gal-title').innerText = t.gallery.title;
+            document.getElementById('gal-subtitle').innerText = t.gallery.subtitle;
+            const galGrid = document.getElementById('gal-grid');
+            // Simplified items for the demo since we can't easily map IDs in HTML without a loop
+            const galleryItems = [
+                { id: "poker", cat: "gaming", img: "https://images.unsplash.com/photo-1511193311928-773796987f39?q=80&w=800&auto=format&fit=crop" },
+                { id: "birthday", cat: "celebration", img: "https://images.unsplash.com/photo-1530103043960-ef38714b2370?q=80&w=800&auto=format&fit=crop" },
+                { id: "chill", cat: "relax", img: "https://images.unsplash.com/photo-1517457373958-b7f300bb75b3?q=80&w=800&auto=format&fit=crop" },
+                { id: "boardgames", cat: "gaming", img: "https://images.unsplash.com/photo-1611891487122-2bcbc967c77d?q=80&w=800&auto=format&fit=crop" },
+                { id: "cocktail", cat: "social", img: "https://images.unsplash.com/photo-1516997294767-fca67d65721c?q=80&w=800&auto=format&fit=crop" },
+                { id: "cinema", cat: "relax", img: "https://images.unsplash.com/photo-1517604931442-7e06ed092467?q=80&w=800&auto=format&fit=crop" },
+            ];
+            galGrid.innerHTML = galleryItems.map((item, i) => `
+                <div class="relative overflow-hidden rounded-3xl group cursor-pointer reveal" style="transition-delay: ${i*0.1}s">
+                    <img src="${item.img}" alt="${t.gallery.items[item.id]}" class="w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                        <span class="text-primary text-sm font-bold uppercase tracking-widest mb-2">${t.gallery.categories[item.cat]}</span>
+                        <h3 class="text-2xl font-display font-bold text-white">${t.gallery.items[item.id]}</h3>
+                    </div>
+                </div>
+            `).join('');
+
+            // Social
+            document.getElementById('soc-badge').innerText = t.social.badge;
+            document.getElementById('soc-title').innerText = t.social.title;
+            document.getElementById('soc-counter-text').innerText = t.social.counter;
+            const socTess = document.getElementById('soc-testimonials');
+            socTess.innerHTML = t.social.testimonials.map((tst, i) => `
+                <div class="p-8 rounded-3xl glass text-left group hover:bg-white/10 transition-colors duration-500 reveal" style="transition-delay: ${i*0.2}s">
+                    <div class="flex gap-1 text-yellow-400 mb-4">
+                        ${[...Array(5)].map(() => '<span class="text-xs">★</span>').join('')}
+                    </div>
+                    <p class="text-white text-lg mb-8 italic leading-relaxed">"${tst.text}"</p>
+                    <div class="flex items-center gap-4">
+                        <img src="https://i.pravatar.cc/150?u=${tst.name}" class="w-12 h-12 rounded-full border-2 border-primary" />
+                        <div>
+                            <h4 class="text-white font-bold">${tst.name}</h4>
+                            <p class="text-gray-400 text-sm">${tst.role}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Final
+            document.getElementById('final-title').innerText = t.final.title;
+            document.getElementById('final-subtitle').innerText = t.final.subtitle;
+            document.getElementById('lbl-name').innerText = t.final.form.firstName;
+            document.getElementById('lbl-email').innerText = t.final.form.email;
+            document.getElementById('lbl-role').innerText = t.final.form.role;
+            document.getElementById('opt-host').innerText = t.final.form.host;
+            document.getElementById('opt-guest').innerText = t.final.form.guest;
+            document.getElementById('final-btn').innerText = t.final.form.btn;
+            document.getElementById('succ-title').innerText = t.final.success.title;
+            document.getElementById('succ-desc').innerText = t.final.success.desc;
+
+            // Footer
+            document.getElementById('foot-tagline').innerText = t.footer.tagline;
+            document.getElementById('foot-prod').innerText = t.footer.product;
+            document.getElementById('foot-feat').innerText = t.footer.links.features;
+            document.getElementById('foot-price').innerText = t.footer.links.pricing;
+            document.getElementById('foot-wait').innerText = t.footer.links.waitlist;
+            document.getElementById('foot-legal').innerText = t.footer.legal;
+            document.getElementById('foot-priv').innerText = t.footer.links.privacy;
+            document.getElementById('foot-terms').innerText = t.footer.links.terms;
+            document.getElementById('foot-cgu').innerText = t.footer.links.cgu;
+            document.getElementById('foot-news').innerText = t.footer.newsletter;
+            document.getElementById('foot-news-desc').innerText = t.footer.newsletterDesc;
+            document.getElementById('foot-news-email').placeholder = t.footer.newsletterEmail;
+            document.getElementById('foot-news-btn').innerText = t.footer.newsletterBtn;
+            document.getElementById('foot-copy').innerText = t.footer.copyright;
+        }
+
+        // Intersection Observer for Reveals
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        function initReveals() {
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        // Waitlist Form Logic
+        document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('final-btn');
+            const form = document.getElementById('waitlist-form');
+            const success = document.getElementById('success-msg');
+
+            btn.innerText = "...";
+            btn.disabled = true;
+
+            const formData = {
+                email: document.getElementById('in-email').value,
+                first_name: document.getElementById('in-name').value,
+                user_type: document.querySelector('input[name="userType"]:checked').value
+            };
+
+            try {
+                // Use Supabase JS Client
+                const { data, error } = await supabase
+                    .from('waitlist')
+                    .insert([formData]);
+
+                if (error) throw error;
+
+                form.classList.add('hidden');
+                success.classList.remove('hidden');
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#6C3CE1', '#FFFFFF', '#0D0D2B']
+                });
+            } catch (err) {
+                alert("Error: " + err.message);
+                btn.innerText = translations[currentLocale].final.form.btn;
+                btn.disabled = false;
+            }
+        });
+
+        // Counter Animation
+        function animateCounter() {
+            const counterEl = document.getElementById('soc-counter');
+            let start = 0;
+            const end = 1248;
+            const duration = 2000;
+            const step = (timestamp) => {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+                counterEl.innerText = Math.floor(progress * (end - start) + start) + "+";
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            let startTime = null;
+            window.requestAnimationFrame(step);
+        }
+
+        // Initialize
+        window.onload = () => {
+            const saved = localStorage.getItem('hosty-locale');
+            if (saved) setLanguage(saved);
+            else setLanguage('fr');
+
+            initReveals();
+
+            // Setup Supabase (User must replace with their own keys)
+            window.supabase = supabase.createClient(
+                'YOUR_SUPABASE_URL',
+                'YOUR_SUPABASE_ANON_KEY'
+            );
+        };
+
+        // Run counter when in view
+        const counterObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                animateCounter();
+                counterObserver.unobserve(entries[0].target);
+            }
+        }, { threshold: 0.5 });
+        counterObserver.observe(document.getElementById('soc-counter'));
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0D0D2B;
+  --foreground: #FFFFFF;
+  --primary: #6C3CE1;
+  --primary-foreground: #FFFFFF;
+  --secondary: #050505;
+  --secondary-foreground: #FFFFFF;
+  --muted: #1a1a3a;
+  --muted-foreground: #a1a1aa;
+  --accent: #6C3CE1;
+  --accent-foreground: #FFFFFF;
+  --destructive: #ef4444;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #6C3CE1;
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-clash);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
