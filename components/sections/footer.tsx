@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Instagram, X as Twitter, Linkedin } from "lucide-react";
+import { InstagramIcon, X as Twitter, LinkedinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/context/LanguageContext";
@@ -25,13 +25,13 @@ export const Footer = () => {
             <div className="flex gap-4 items-center">
               <div className="flex gap-2">
                 <a href="#" className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-colors">
-                  <Instagram className="w-4 h-4" />
+                  <InstagramIcon className="w-4 h-4" />
                 </a>
                 <a href="#" className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-colors">
                   <Twitter className="w-4 h-4" />
                 </a>
                 <a href="#" className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-colors">
-                  <Linkedin className="w-4 h-4" />
+                  <LinkedinIcon className="w-4 h-4" />
                 </a>
               </div>
               <LanguageSwitcher />
