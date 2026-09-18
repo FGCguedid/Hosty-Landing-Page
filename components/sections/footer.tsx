@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Instagram, Twitter, Linkedin } from "lucide-react";
+import { Instagram, X as Twitter, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/context/LanguageContext";
