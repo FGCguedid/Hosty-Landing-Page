@@ -21,6 +21,7 @@ export default function WaitlistForm() {
     const user_type = formData.get('userType') as string;
 
     try {
+      console.log('Supabase object state:', supabase);
       const { error } = await supabase
         .from('waitlist')
         .insert([{ email, first_name, user_type }]);
